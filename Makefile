@@ -1,7 +1,11 @@
 CC=gcc
 CFLAGS=-Wall
+TARGET=main
 
-all: main
+all: $(TARGET)
 
-main: main.c
-	$(CC) $(CFLAGS) -o main main.c
+$(TARGET): main.c
+	$(CC) $(CFLAGS) -o $(TARGET) main.c
+
+clean:
+	rm -f $(TARGET)
