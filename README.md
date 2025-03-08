@@ -1,1 +1,1 @@
-# this  project aim to learn the functionalities of tcp/ip model 
+# this  project aims to learn the functionalities of tcp/ip model 
