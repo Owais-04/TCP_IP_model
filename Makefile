@@ -1,6 +1,6 @@
 CXX = g++
 
-CXXFLAGS = -Wall -std=c++17
+CXXFLAGS = 
 
 TARGET = main
 
@@ -27,4 +27,4 @@ hub.o: hub.cpp hub.h
 
 # Clean rule to remove generated files
 clean:
-	rm -f $(TARGET) $(OBJS)
+	rm -f $(TARGET) $(OBJS) main main.o device.o hub.o

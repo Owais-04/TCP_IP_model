@@ -1,3 +1,5 @@
+#ifndef DEVICE_H
+#define DEVICE_H
 #include <string>
 using namespace std;
 
@@ -11,3 +13,4 @@ public:
     string getMacAddress() const;
     string getIpAddress() const;
 };
+#endif
