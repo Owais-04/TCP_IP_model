@@ -1,4 +1,3 @@
-#copied
 CXX = g++
 
 CXXFLAGS = -Wall -std=c++17
@@ -6,7 +5,7 @@ CXXFLAGS = -Wall -std=c++17
 TARGET = main
 
 # Object files for modular compilation
-OBJS = main.o device.o
+OBJS = main.o device.o hub.o
 
 all: $(TARGET)
 
@@ -15,12 +14,16 @@ $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
 
 # Compile main.cpp into main.o
-main.o: main.cpp device.h
+main.o: main.cpp device.h hub.h
 	$(CXX) $(CXXFLAGS) -c main.cpp
 
 # Compile device.cpp into device.o
 device.o: device.cpp device.h
 	$(CXX) $(CXXFLAGS) -c device.cpp
+
+# Compile hub.cpp into hub.o
+hub.o: hub.cpp hub.h
+	$(CXX) $(CXXFLAGS) -c hub.cpp
 
 # Clean rule to remove generated files
 clean:
