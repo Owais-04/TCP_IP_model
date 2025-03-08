@@ -1,7 +1,16 @@
-#include <stdio.h>
+#include "devices.h"
+#include <iostream>
+#include <vector>
+
+
+
 
 int main() {
-    printf("start\n");
+    
+    
+
+
+    
+
     return 0;
 }
-
