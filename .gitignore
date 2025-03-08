@@ -1,15 +1,5 @@
-# Compiled binary
+
+# Ignore specific files
 main
-*.o
-*.exe
-devices
-*.o
-
-
-# IDE 
-.vscode/
-
-
-
-# Git related
-*.orig
+main.o
+device.o
