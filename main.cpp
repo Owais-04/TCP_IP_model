@@ -17,7 +17,7 @@ int main() {
              << ", IP: " << deviceList[i].getIpAddress() << endl;
     }
    
-    choose_Topology(1);
+    choose_Topology(2);
 
    
     return 0;

@@ -5,7 +5,7 @@ CXXFLAGS =
 TARGET = main
 
 # Object files for modular compilation
-OBJS = main.o device.o hub.o topology.o
+OBJS = main.o device.o hub.o topology.o bus.o   # <-- Added bus.o here
 
 all: $(TARGET)
 
@@ -14,7 +14,7 @@ $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
 
 # Compile main.cpp into main.o
-main.o: main.cpp device.h hub.h topology.h
+main.o: main.cpp device.h hub.h bus.h topology.h
 	$(CXX) $(CXXFLAGS) -c main.cpp
 
 # Compile device.cpp into device.o
@@ -24,6 +24,10 @@ device.o: device.cpp device.h
 # Compile hub.cpp into hub.o
 hub.o: hub.cpp hub.h
 	$(CXX) $(CXXFLAGS) -c hub.cpp
+
+# Compile bus.cpp into bus.o
+bus.o: bus.cpp bus.h
+	$(CXX) $(CXXFLAGS) -c bus.cpp
 
 # Compile topology.cpp into topology.o
 topology.o: topology.cpp topology.h
