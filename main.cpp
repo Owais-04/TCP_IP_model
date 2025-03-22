@@ -3,7 +3,7 @@
 #include "device.h"
 #include "topology.h"
 #include "paramhs.h"
-
+#include "prompt.h"
 
 using namespace std;
 
@@ -16,9 +16,9 @@ int main() {
              << deviceList[i].getMacAddress() 
              << ", IP: " << deviceList[i].getIpAddress() << endl;
     }
-   
-    choose_Topology(2);
-
+    
+   // choose_Topology(1);
+    
    
     return 0;
 }

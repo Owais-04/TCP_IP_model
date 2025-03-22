@@ -8,7 +8,7 @@ class Devices {
 private:
     string mac_address;
     string ip_address;
-
+    
 public:
     void setDevice(const string& mac_address, const string& ip_address);
     string getMacAddress() const;
@@ -16,4 +16,5 @@ public:
 };
 
 void initializeDevices();
+
 #endif
