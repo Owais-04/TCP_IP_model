@@ -9,6 +9,7 @@ class EndDevices;//forward declaration
 class Switch;
 //extern int choice;
 extern vector<EndDevices> deviceList;
+extern vector<Switch> deviceListSwitch;
 extern int MAX_PORTS;
  //#define N= 5;
 #endif 

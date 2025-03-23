@@ -2,6 +2,7 @@
 #define HUB_H
 
 #include "device.h"  
+#include "switch.h"
 #include <vector>
 #include <string>
 using namespace std;
@@ -9,16 +10,19 @@ using namespace std;
 class Hub {
 private:
     vector<EndDevices*> connectedDevices;  
-
+    vector<Switch*> connectedSwitches;
 public:
     
     void connectDevice(EndDevices* device);
 
     
     void broadcastData(const string& senderMAC, const string& data);
-//broad cast ack
+
     
     void displayConnectedDevices() const;
+    void broadcastAck(const string& senderMAC);
+    
+    void connectToSwitch(Switch* switchDevice);
 };
 
 #endif

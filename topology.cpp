@@ -19,7 +19,7 @@ void choose_Topology_layer2(int x){
     //    case 2://hard wired connection to show working of intermixed ckt
     //    hardwired_layer2();
     //    break;
-     case 3:
+     default:
      cout<<"invalid "<<endl;
 
     }
@@ -36,10 +36,155 @@ void choose_Topology(int x) {
         //     ringTopology();
         //     break;
         default:
-            std::cout << "Invalid topology choice" << std::endl;
+            cout << "Invalid topology choice" << endl;
             break;
     }
 }
+void testcases_layer1(){
+    int choice;
+    cout<<"1 for first test case \n2 for second test case :"<<endl;
+    cin>>choice;
+    switch (choice){
+        case 1:
+        testcase1_layer1();
+        break;
+        case 2:
+        testcase2_layer1();
+        break;
+        case 3:
+        cout<<"invalid"<<endl;
+    }
+}
+void testcases_layer2(){
+    int choice;
+    cout<<"1 for first test case \n2 for second test case :"<<endl;
+    cin>>choice;
+    switch (choice){
+        case 1:
+        testcase1_layer2();
+        break;
+        case 2:
+        testcase2_layer2();
+        break;
+        case 3:
+        cout<<"invalid"<<endl;
+}  
+}
+void testcase1_layer2(){
+  starTopology_switch();
+}  
+//this test case is not that correct implementation as i have not used bridge properties correctly;
+void testcase2_layer2() {
+    // Create two hubs
+    Hub h1, h2;
+    
+    // Connect first 5 devices to h1
+    for (int i = 0; i < 5 && i < deviceList.size(); i++) {
+        h1.connectDevice(&deviceList[i]);
+    }
+    
+    // Connect last 5 devices to h2
+    int listSize = deviceList.size();
+    for (int i = listSize - 5; i < listSize; i++) {
+        if (i >= 0) { // Ensure index is valid
+            h2.connectDevice(&deviceList[i]);
+        }
+    }
+    
+    
+    //initializeSwitches();
+    
+    // Connect both hubs to the switch
+    // h1.connectToSwitch(&deviceListSwitch[0]);//here is a issue
+    // h2.connectToSwitch(&deviceListSwitch[0]);
+    
+    // Display connected devices for verification
+    cout << "Hub 1 connected devices:" << endl;
+    h1.displayConnectedDevices();
+    cout << "Hub 2 connected devices:" << endl;
+    h2.displayConnectedDevices();
+    
+    // Get user input for communication test
+    cout << "Now you have 10 devices. Select two PCs to enable communication:" << endl;
+    cout << "Sender device (0-9): ";
+    int senderIndex;
+    cin >> senderIndex;
+    
+    cout << "Receiver device (0-9): ";
+    int receiverIndex;
+    cin >> receiverIndex;
+    
+    // Validate input indices
+    if (senderIndex < 0 || senderIndex >= deviceList.size() || 
+        receiverIndex < 0 || receiverIndex >= deviceList.size()) {
+        cout << "Invalid device indices!" << endl;
+        return;
+    }
+    
+    // Get message from user
+    string message;
+    cout << "Enter the message you want to send: ";
+    cin.ignore(); // Clear input buffer
+    getline(cin, message);
+    
+   
+    
+    cout << "Sending message from Device " << senderIndex 
+         << " (MAC: " << deviceList[senderIndex].getMacAddress() 
+         << ") to Device " << receiverIndex 
+         << " (MAC: " << deviceList[receiverIndex].getMacAddress() << ")" << endl;
+    
+    //sender connected to first hub or second
+    if (senderIndex < 5) {
+        
+        h1.broadcastData(deviceList[senderIndex].getMacAddress(), message);
+         cout<<"->sent to device switch on port 1 "<<endl;
+        if(receiverIndex<5){//switch will have learned that device not on other side 
+            h1.broadcastAck(deviceList[receiverIndex].getMacAddress());
+            cout<<" ->sent to switch on port 1"<<endl;
+        }
+        else{
+          h2.broadcastAck(deviceList[receiverIndex].getMacAddress());
+          cout<<" ->sent to switch on port 2 "<<endl;
+          h1.broadcastAck(deviceList[receiverIndex].getMacAddress());
+        }
+    } else {
+        h2.broadcastData(deviceList[senderIndex].getMacAddress(), message);
+         cout<<" ->sent to device switch on port 2 "<<endl;
+        if(receiverIndex<5){//switch will have learned that device not on other side 
+           
+            h1.broadcastAck(deviceList[receiverIndex].getMacAddress());
+            cout<<" ->sent to switch on port 1"<<endl;
+            h2.broadcastAck(deviceList[receiverIndex].getMacAddress());
+            
+        }
+        else{
+          h2.broadcastAck(deviceList[receiverIndex].getMacAddress());
+          cout<<" ->sent to switch on port 2 "<<endl;
+          
+        } 
+      
+    }
+//now hub will broadcast data to all including to all ,i will assume that switch has already learned connected devices mac
+}
+
+
+void testcase2_layer1(){
+    starTopology();
+}
+void testcase1_layer1(){
+    initializeEndDevices();
+    int device,device2;
+    string message;
+    cout<<"what is the sender device :(devices start from 0-2)"<<endl;
+    cin>>device;
+    cout<<"enter the message you want to send :"<<endl;
+    cin>>message;
+    cout<<"enter the receving device :"<<endl;
+    cin>>device2;
+    cout<<"device "<<deviceList[device].getMacAddress()<<" is sending message "<<message<<" to device "<<deviceList[device2].getMacAddress()<<endl;
+
+ }
 void starTopology() {
     int device,device2;
     string message;
@@ -55,7 +200,8 @@ void starTopology() {
     cin>>device2;
     hub.broadcastData(deviceList[device].getMacAddress(), message);
     hub.displayConnectedDevices();
-    hub.broadcastData(deviceList[device2].getMacAddress(), "ACK from " + deviceList[device2].getMacAddress());
+    
+    hub.broadcastAck(deviceList[device2].getMacAddress());
    
 }
 void starTopology_switch() {

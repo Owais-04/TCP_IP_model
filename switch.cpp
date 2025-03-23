@@ -1,6 +1,9 @@
 #include "switch.h"
+//#include "hub.h"
 #include <thread>
 #include <chrono>
+std::vector<Switch> deviceListSwitch;
+
 int Switch::calculateChecksum(const std::string& frame) {
     int checksum = 0;
     for (char c : frame) {
@@ -121,4 +124,23 @@ void Switch::refreshMacTable() {
     macTable.clear();  // Clear existing entries
    
     std::cout << "MAC Table refreshed." << std::endl;
+}
+// void Switch:: connectHub(Hub* hub) {
+//     connectedHubs.push_back(hub);
+//     hub->connectToSwitch(this); // Create bidirectional connection
+// }
+void initilizeSwitches() {
+    Switch switch1, switch2;
+    switch1.setDevice("00:3A:4B:5C:6D:7E");
+    switch2.setDevice("00:3B:4C:5D:6E:7F");
+    deviceListSwitch.push_back(switch1); 
+    deviceListSwitch.push_back(switch2);
+    
+}
+void Switch::setDevice(const std::string& mac_address) {
+    this->mac_address = mac_address;
+    
+}
+std::string Switch::getMacAddress() const {
+    return mac_address;
 }

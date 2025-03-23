@@ -11,5 +11,10 @@ void starTopology();
 void starTopology_switch();
 void busTopology();
 //void ringTopology();
-
+void testcases_layer1();
+void testcase1_layer1();
+void testcase2_layer1();
+void testcases_layer2();
+void testcase1_layer2();
+void testcase2_layer2();
 #endif 
