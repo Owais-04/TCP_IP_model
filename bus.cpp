@@ -3,7 +3,7 @@
 #include "bus.h"
 
 
-void Bus::connectDevice_bus(Devices* device) {
+void Bus::connectDevice_bus(EndDevices* device) {
     connectedDevices.push_back(device);
     std::cout << "Device with MAC: " << device->getMacAddress() << " connected with bus " << std::endl;
 }

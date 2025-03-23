@@ -10,6 +10,6 @@ void hardwired_layer2();
 void starTopology();
 void starTopology_switch();
 void busTopology();
-void ringTopology();
+//void ringTopology();
 
 #endif 

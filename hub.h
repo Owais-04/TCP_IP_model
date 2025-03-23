@@ -8,11 +8,11 @@ using namespace std;
 
 class Hub {
 private:
-    vector<Devices*> connectedDevices;  
+    vector<EndDevices*> connectedDevices;  
 
 public:
     
-    void connectDevice(Devices* device);
+    void connectDevice(EndDevices* device);
 
     
     void broadcastData(const string& senderMAC, const string& data);

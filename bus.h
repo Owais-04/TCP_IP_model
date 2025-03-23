@@ -8,11 +8,11 @@ using namespace std;
 
 class Bus {
 private:
-    vector<Devices*> connectedDevices;  
+    vector<EndDevices*> connectedDevices;  
 
 public:
     
-    void connectDevice_bus(Devices* device);
+    void connectDevice_bus(EndDevices* device);
 
     
     void transmitData_bus(const string& senderMAC, const string& data,const string& receiverMAC);

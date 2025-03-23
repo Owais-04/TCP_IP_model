@@ -4,7 +4,7 @@
 
 using namespace std;
 
-class Devices {
+class EndDevices {
 private:
     string mac_address;
     string ip_address;
@@ -15,6 +15,6 @@ public:
     string getIpAddress() const;
 };
 
-void initializeDevices();
+void initializeEndDevices();
 
 #endif

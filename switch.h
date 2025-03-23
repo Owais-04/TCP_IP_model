@@ -1,29 +1,32 @@
 #ifndef SWITCH_H
 #define SWITCH_H
 
-#include "device.h"
-#include <iostream>
-#include <vector>
 #include <unordered_map>
+#include <vector>
+#include <iostream>
 
-using namespace std;
-
-class Switch{
+class Switch {
 private:
-    string mac_address;
-    vector<Devices*> connectedDevices;
-    unordered_map<string, Devices*> macTable; // MAC address -> Device pointer
+
+    std::unordered_map<std::string, int> macTable; // Maps MAC address to port number
+    std::vector<std::string> connectedDevices; // Stores MAC addresses of connected devices
+    // Define a maximum number of ports
 
 public:
-    void setSwitch(const string& mac_address);
-    string getSwitch_mac() const;
-    void connectDevice(Devices* device);
+    static const int MAX_PORTS = 4; 
+    static const int WINDOW_SIZE = 3; 
+    static const int SEQ_NUM_SIZE = 8;
+    int calculateChecksum(const std::string& frame);
+    void forwardPacket(const std::string& mac_dest, int incomingPort);
+    void learnMacAddress(const std::string& mac_source, int port);
+    void applyAccessControl(const std::string& protocol, const std::string& senderMAC, const std::string& receiverMAC, const std::string& data);
+    void stopAndWait(const std::string& senderMAC, const std::string& receiverMAC, const std::string& data);
+    void selectiveRepeat(const std::string& senderMAC, const std::string& receiverMAC, const std::string& data);
+    void displayConnectedDevices(); // New function to display connected devices and ports
+    void connectDevice(const std::string& macAddress); // Adds device to the switch
+    void refreshMacTable();
 
-    void forwardData(const string& senderMAC, const string& receiverMAC, const string& data);
-    void displayMacTable() const;
-    void displayConnectedDevices() const;
+
 };
-void initializeSwitches(vector<Switch>& deviceListSwitch, const string& mac_address);
-
 
 #endif

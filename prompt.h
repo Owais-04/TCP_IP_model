@@ -18,7 +18,7 @@ class prompt
         
     }
     void run(){
-        initializeDevices();
+        initializeEndDevices();
         int x;
         cout<<"enter the layer device you want to add: "<<endl;
         cin>>x;

@@ -1,7 +1,7 @@
 #include "hub.h"
 #include <iostream>
 
-void Hub::connectDevice(Devices* device) {
+void Hub::connectDevice(EndDevices* device) {
     connectedDevices.push_back(device);
     cout << "Device with MAC: " << device->getMacAddress() << " connected to hub." << endl;
 }

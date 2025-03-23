@@ -1,16 +1,20 @@
-// bridge.h
-#ifndef BRIDGE_H
-#define BRIDGE_H
+// #include "switch.h"
+// #ifndef BRIDGE_H
+// #define BRIDGE_H
 
-#include "device.h"
-#include <unordered_map>
+// #include "device.h"
+// #include <unordered_map>
 
-class Bridge : public Devices {
-private:
-    std::unordered_map<std::string, int> macTable; // MAC address forwarding table
-public:
-    void forwardFrame(const std::string& mac_dest, int incomingPort);
-    void learnMacAddress(const std::string& mac_source, int port);
-};
+// class Bridge  {
+//   private:
+//   string mac_address;
+//   int portnumber=2;
+//   vector<Switch*> connectedDevices;
+//   unordered_map<int ,Switch*>portvsmactable;
+//   public:
+//   void connectSwitches(Switch* device);
+//   void forwardData(const int inputport, const int  outputport, const string& data);
+//   void displayMacvsport() const;
+// };
 
-#endif // BRIDGE_H
+// #endif // BRIDGE_H
