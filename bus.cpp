@@ -9,11 +9,11 @@ void Bus::connectDevice_bus(EndDevices* device) {
 }
 void Bus::transmitData_bus(const std::string& senderMAC, const std::string& data, const std::string& receiverMAC) {
     std::cout << "\nTransmitting data from " << senderMAC << " to " << receiverMAC << "  " << data << std::endl;
-    
+    //loop for broadcast
     
     for (auto& device : connectedDevices) {
         if (device->getMacAddress() != senderMAC && device->getMacAddress() == receiverMAC) {
-            std::cout << " -> message received device with MAC: " << device->getMacAddress() << std::endl;
+            std::cout << " ->Ack fromdevice with MAC: " << device->getMacAddress() << std::endl;
         }
     }
 }
