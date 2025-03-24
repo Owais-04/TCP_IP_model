@@ -78,35 +78,28 @@ void testcase2_layer2() {
     // Create two hubs
     Hub h1, h2;
     Switch centralSwitch;
-    
-    
-    centralSwitch.setDevice("00:AA:BB:CC:DD:EE");
-
+     centralSwitch.setDevice("A4:B1:C2:3D:E5:F6");
     // Connect first 5 devices to h1
     for (int i = 0; i < 5; i++) {
         h1.connectDevice(&deviceList[i]);
-        centralSwitch.connectDevice(deviceList[i].getMacAddress()); // Switch learns device
     }
 
-    h1.connectToSwitch(&centralSwitch);
-    h2.connectToSwitch(&centralSwitch);
     // Connect last 5 devices to h2
     for (int i = 5; i < 10; i++) {
         h2.connectDevice(&deviceList[i]);
-        centralSwitch.connectDevice(deviceList[i].getMacAddress()); // Switch learns device
     }
 
-    // Connect hubs to the switch
-    // centralSwitch.connectHub(&h1);
-    // centralSwitch.connectHub(&h2);
-
+    // Connect hubs to the central switch
+    centralSwitch.connectHub(&h1);//two way connection
+    centralSwitch.connectHub(&h2);
+    //h1.connectToSwitch(&centralSwitch);
+    //h2.connectToSwitch(&centralSwitch);
     // Display connected devices
     cout << "Hub 1 connected devices:" << endl;
     h1.displayConnectedDevices();
     cout << "Hub 2 connected devices:" << endl;
     h2.displayConnectedDevices();
-    
-    
+
     cout << "Now you have 10 devices. Select two PCs to enable communication:" << endl;
     cout << "Sender device (0-9): ";
     int senderIndex;
@@ -132,31 +125,32 @@ void testcase2_layer2() {
     cout << "Sending message from Device " << senderIndex 
          << " (MAC: " << senderMAC << ") to Device " << receiverIndex 
          << " (MAC: " << receiverMAC << ")" << endl;
-if(senderIndex<5){
-   
-    if(receiverIndex<5){
-        h1.broadcastData(senderMAC,message);
-        h1.broadcastAck(receiverMAC);
+    int incommingport=0;
+    int outgoingport=1;
+    // Determine which hub the sender and receiver belong to
+    if (senderIndex < 5) { // Sender is in Hub 1
+        if (receiverIndex < 5) { // Receiver is also in Hub 1
+            h1.broadcastData(senderMAC, message);
+            h1.broadcastAck(receiverMAC);
+        } else { // Receiver is in Hub 2
+            h1.broadcastData(senderMAC, message);
+            centralSwitch.forwardPacket(senderMAC,incommingport);
+            h2.broadcastAck(receiverMAC);
+        }
+    } else { // Sender is in Hub 2
+        if (receiverIndex >= 5) { // Receiver is also in Hub 2
+            h2.broadcastData(senderMAC, message);
+            h2.broadcastAck(receiverMAC);
+        } else { // Receiver is in Hub 1
+            h2.broadcastData(senderMAC, message);
+            centralSwitch.forwardPacket(senderMAC, outgoingport);
+            h1.broadcastAck(receiverMAC);
+        }
     }
-    else{
-        h1.broadcastData(senderMAC,message);
-        h2.broadcastData(senderMAC,message);
-        h2.broadcastAck(receiverMAC);
-        h1.broadcastAck(receiverMAC);
-    }
-}else{
 
-if(receiverIndex>=5){
-    h2.broadcastData(senderMAC,message);
-    h2.broadcastAck(receiverMAC);
-}
-else{
-    h2.broadcastData(senderMAC,message);
-    h1.broadcastData(senderMAC,message);
-    h1.broadcastAck(receiverMAC);
-    h2.broadcastAck(receiverMAC);
-}
-}
+    // Report broadcast and collision domains
+    // cout << "Total broadcast domains: 1 (entire network connected via switch)" << endl;
+    // cout << "Total collision domains: 2 (one for each hub)" << endl;
 }
 
 
@@ -234,18 +228,7 @@ void starTopology_switch() {
   
 }
 
-//  void hardwired_layer2(){
-//     int switch1mac,switch2mac;
-//     initializeSwitches();
-//     // Bridge bridge;
-//     // int device1,device2;
-//     // cout<<"i have created a hardwired topology!"<<endl;
-//     // Switch switch1;
-//     // Switch switch2;
-//     // bridge.learnMacAddress(&switch1mac,0);
-//     // bridge.learnMacAddress(&switch2mac,1);
 
-//  }
        
 
 void busTopology() {

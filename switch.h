@@ -6,13 +6,19 @@
 #include <iostream>
 #include "hub.h"
 
+// Forward declaration of the Hub class
+class Hub;
+
 
 class Switch {
 private:
     std::string mac_address;
     std::unordered_map<std::string, int> macTable; // Maps MAC address to port number
     std::vector<std::string> connectedDevices; // Stores MAC addresses of connected devices
-    // Define a maximum number of ports
+    //std::unordered_map<std::string, int> hubtoport;
+
+
+    
     
 public:
     
@@ -29,10 +35,11 @@ public:
     void displayConnectedDevices(); // connected devices and ports
     void connectDevice(const std::string& macAddress); // Adds device to the switch
     void refreshMacTable();
-    //void connectHub(Hub* hub);
+    void connectHub(Hub* hub);
     void setDevice(const std::string & mac_address);
     std:: string getMacAddress() const;
-    //std:: vector<Hub*> connectedHubs;
+    
+    std:: vector<Hub*> connectedHubs;
 };
 
 void initilizeSwitches();

@@ -149,3 +149,12 @@ std::string Switch::getMacAddress() const {
 //     connectedHubs.push_back(hub);
 //     cout << "Hub connected to switch." << endl;
 // }
+void Switch::connectHub(Hub* hub) {
+    if (connectedHubs.size() >= MAX_PORTS) {
+        std::cout << "Error: Maximum port limit reached. Cannot connect more hubs." << std::endl;
+        return;
+    }
+    connectedHubs.push_back(hub);
+    hub->connectToSwitch(this); // Establish bidirectional connection
+    std::cout << "Hub connected to switch successfully." << std::endl;
+}

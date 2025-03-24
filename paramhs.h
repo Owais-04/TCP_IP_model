@@ -7,10 +7,11 @@ using namespace std;
 
 class EndDevices;//forward declaration
 class Switch;
+class Hub;
 //extern int choice;
 extern vector<EndDevices> deviceList;
 extern vector<Switch> deviceListSwitch;
-//extern vector<Hub*> connectedHubs; 
+extern vector<Hub*> connectedHubs; 
 extern int MAX_PORTS;
  //#define N= 5;
 #endif 

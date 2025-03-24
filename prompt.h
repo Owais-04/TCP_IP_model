@@ -32,9 +32,7 @@ class prompt
        
     }
    
-    // testcases_layer2(){
-
-    // }
+  
     void run(){
         initializeEndDevices();
         int x;
