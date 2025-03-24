@@ -77,96 +77,89 @@ void testcase1_layer2(){
 void testcase2_layer2() {
     // Create two hubs
     Hub h1, h2;
+    Switch centralSwitch;
     
+    
+    centralSwitch.setDevice("00:AA:BB:CC:DD:EE");
+
     // Connect first 5 devices to h1
-    for (int i = 0; i < 5 && i < deviceList.size(); i++) {
+    for (int i = 0; i < 5; i++) {
         h1.connectDevice(&deviceList[i]);
+        centralSwitch.connectDevice(deviceList[i].getMacAddress()); // Switch learns device
     }
-    
+
+    h1.connectToSwitch(&centralSwitch);
+    h2.connectToSwitch(&centralSwitch);
     // Connect last 5 devices to h2
-    int listSize = deviceList.size();
-    for (int i = listSize - 5; i < listSize; i++) {
-        if (i >= 0) { // Ensure index is valid
-            h2.connectDevice(&deviceList[i]);
-        }
+    for (int i = 5; i < 10; i++) {
+        h2.connectDevice(&deviceList[i]);
+        centralSwitch.connectDevice(deviceList[i].getMacAddress()); // Switch learns device
     }
-    
-    
-    //initializeSwitches();
-    
-    // Connect both hubs to the switch
-    // h1.connectToSwitch(&deviceListSwitch[0]);//here is a issue
-    // h2.connectToSwitch(&deviceListSwitch[0]);
-    
-    // Display connected devices for verification
+
+    // Connect hubs to the switch
+    // centralSwitch.connectHub(&h1);
+    // centralSwitch.connectHub(&h2);
+
+    // Display connected devices
     cout << "Hub 1 connected devices:" << endl;
     h1.displayConnectedDevices();
     cout << "Hub 2 connected devices:" << endl;
     h2.displayConnectedDevices();
     
-    // Get user input for communication test
+    
     cout << "Now you have 10 devices. Select two PCs to enable communication:" << endl;
     cout << "Sender device (0-9): ";
     int senderIndex;
     cin >> senderIndex;
-    
+
     cout << "Receiver device (0-9): ";
     int receiverIndex;
     cin >> receiverIndex;
-    
-    // Validate input indices
-    if (senderIndex < 0 || senderIndex >= deviceList.size() || 
-        receiverIndex < 0 || receiverIndex >= deviceList.size()) {
+
+    if (senderIndex < 0 || senderIndex >= 10 || receiverIndex < 0 || receiverIndex >= 10) {
         cout << "Invalid device indices!" << endl;
         return;
     }
-    
-    // Get message from user
+
     string message;
     cout << "Enter the message you want to send: ";
-    cin.ignore(); // Clear input buffer
+    cin.ignore();
     getline(cin, message);
-    
-   
-    
+
+    string senderMAC = deviceList[senderIndex].getMacAddress();
+    string receiverMAC = deviceList[receiverIndex].getMacAddress();
+
     cout << "Sending message from Device " << senderIndex 
-         << " (MAC: " << deviceList[senderIndex].getMacAddress() 
-         << ") to Device " << receiverIndex 
-         << " (MAC: " << deviceList[receiverIndex].getMacAddress() << ")" << endl;
-    
-    //sender connected to first hub or second
-    if (senderIndex < 5) {
-        
-        h1.broadcastData(deviceList[senderIndex].getMacAddress(), message);
-         cout<<"->sent to device switch on port 1 "<<endl;
-        if(receiverIndex<5){//switch will have learned that device not on other side 
-            h1.broadcastAck(deviceList[receiverIndex].getMacAddress());
-            cout<<" ->sent to switch on port 1"<<endl;
-        }
-        else{
-          h2.broadcastAck(deviceList[receiverIndex].getMacAddress());
-          cout<<" ->sent to switch on port 2 "<<endl;
-          h1.broadcastAck(deviceList[receiverIndex].getMacAddress());
-        }
-    } else {
-        h2.broadcastData(deviceList[senderIndex].getMacAddress(), message);
-         cout<<" ->sent to device switch on port 2 "<<endl;
-        if(receiverIndex<5){//switch will have learned that device not on other side 
-           
-            h1.broadcastAck(deviceList[receiverIndex].getMacAddress());
-            cout<<" ->sent to switch on port 1"<<endl;
-            h2.broadcastAck(deviceList[receiverIndex].getMacAddress());
-            
-        }
-        else{
-          h2.broadcastAck(deviceList[receiverIndex].getMacAddress());
-          cout<<" ->sent to switch on port 2 "<<endl;
-          
-        } 
-      
+         << " (MAC: " << senderMAC << ") to Device " << receiverIndex 
+         << " (MAC: " << receiverMAC << ")" << endl;
+if(senderIndex<5){
+   
+    if(receiverIndex<5){
+        h1.broadcastData(senderMAC,message);
+        h1.broadcastAck(receiverMAC);
     }
-//now hub will broadcast data to all including to all ,i will assume that switch has already learned connected devices mac
+    else{
+        h1.broadcastData(senderMAC,message);
+        h2.broadcastData(senderMAC,message);
+        h2.broadcastAck(receiverMAC);
+        h1.broadcastAck(receiverMAC);
+    }
+}else{
+
+if(receiverIndex>=5){
+    h2.broadcastData(senderMAC,message);
+    h2.broadcastAck(receiverMAC);
 }
+else{
+    h2.broadcastData(senderMAC,message);
+    h1.broadcastData(senderMAC,message);
+    h1.broadcastAck(receiverMAC);
+    h2.broadcastAck(receiverMAC);
+}
+}
+}
+
+
 
 
 void testcase2_layer1(){

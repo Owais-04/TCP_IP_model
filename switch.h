@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include <iostream>
+#include "hub.h"
 
 
 class Switch {
@@ -12,12 +13,13 @@ private:
     std::unordered_map<std::string, int> macTable; // Maps MAC address to port number
     std::vector<std::string> connectedDevices; // Stores MAC addresses of connected devices
     // Define a maximum number of ports
-
+    
 public:
+    
     static const int MAX_PORTS = 10; 
     static const int WINDOW_SIZE = 3; 
     static const int SEQ_NUM_SIZE = 8;
-      //std:: vector<Hub*> connectedHubs;
+   
     int calculateChecksum(const std::string& frame);
     void forwardPacket(const std::string& mac_dest, int incomingPort);
     void learnMacAddress(const std::string& mac_source, int port);
@@ -30,7 +32,7 @@ public:
     //void connectHub(Hub* hub);
     void setDevice(const std::string & mac_address);
     std:: string getMacAddress() const;
-
+    //std:: vector<Hub*> connectedHubs;
 };
 
 void initilizeSwitches();

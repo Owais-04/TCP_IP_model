@@ -10,6 +10,7 @@ class Switch;
 //extern int choice;
 extern vector<EndDevices> deviceList;
 extern vector<Switch> deviceListSwitch;
+//extern vector<Hub*> connectedHubs; 
 extern int MAX_PORTS;
  //#define N= 5;
 #endif 

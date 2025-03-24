@@ -144,3 +144,8 @@ void Switch::setDevice(const std::string& mac_address) {
 std::string Switch::getMacAddress() const {
     return mac_address;
 }
+
+// void connectHub(Hub* hub) {
+//     connectedHubs.push_back(hub);
+//     cout << "Hub connected to switch." << endl;
+// }

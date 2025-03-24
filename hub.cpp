@@ -15,6 +15,9 @@ void Hub::broadcastData(const string& senderMAC, const string& data) {
             cout << " -> Sent to device with MAC: " << device->getMacAddress() << endl;
         }
     }
+    for(auto & device : connectedSwitches){
+       cout<<" -> sent to switch with Mac " <<device->getMacAddress()<<endl;
+    }
 }
 
 
@@ -28,6 +31,9 @@ void Hub::displayConnectedDevices() const {
         cout << " - MAC: " << device->getMacAddress() 
              << " | IP: " << device->getIpAddress() << endl;
     }
+    for(auto& device: connectedSwitches){//changed here
+        cout << " - MAC: " << device->getMacAddress()<<endl;
+    }
 }
 
 void Hub::broadcastAck(const string& senderMAC) {
@@ -37,5 +43,8 @@ void Hub::broadcastAck(const string& senderMAC) {
         if (device->getMacAddress() != senderMAC) {
             cout << " -> Sent to device with MAC: " << device->getMacAddress() << endl;
         }
+    }
+    for(auto&device :connectedSwitches ){
+        cout<<" -> sent to switch with Mac "<<device->getMacAddress()<<endl;
     }
 }

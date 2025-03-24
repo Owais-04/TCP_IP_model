@@ -5,6 +5,8 @@
 #include "switch.h"
 #include <vector>
 #include <string>
+
+class Switch; // Forward declaration
 using namespace std;
 
 class Hub {
