@@ -115,7 +115,7 @@ void Switch::connectDevice(const std::string& macAddress) {
         std::cout << "Error: Maximum port limit reached. Cannot add more devices." << std::endl;
         return;
     }
-    int port = macTable.size() + 1; // Assign next available port
+    int port = (macTable.size() % MAX_PORTS) + 1; // Assign port using modulo operation
     learnMacAddress(macAddress, port);
     std::cout << "Device with MAC " << macAddress << " connected at port " << port << std::endl;
 }

@@ -48,6 +48,7 @@ class prompt
             case 2:
             cout<<"layer 2 device added : "<<endl;
             layer2();
+            break;
             case 3:
             cout<<"test cases for layer 1 and 2 :"<<endl;
             testcases();

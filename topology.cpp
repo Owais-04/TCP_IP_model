@@ -21,7 +21,7 @@ void choose_Topology_layer2(int x){
     //    break;
      default:
      cout<<"invalid "<<endl;
-
+      break;
     }
 }
 void choose_Topology(int x) {
@@ -212,14 +212,14 @@ void starTopology_switch() {
         }
         networkSwitch.learnMacAddress(dev.getMacAddress(), port++);
     }
-
-    std::cout << "What is the sending device? (0-" << deviceList.size() - 1 << ")" << std::endl;
+   
+    std::cout << "What is the sending device? (1-9)"<< std::endl;
     std::cin >> device;
     std::cout << "What is the receiving device? (other than sending)" << std::endl;
     std::cin >> device2;
     std::cout << "Enter the message:" << std::endl;
     std::cin >> message;
-    std::cout << "Choose protocol (Stop-and-Wait / Selective Repeat):" << std::endl;
+    std::cout << "Choose protocol (Stop-and-Wait / Selective-Repeat):" << std::endl;
     std::cin >> protocol;
 
     // Apply access control and forward packets accordingly
@@ -230,8 +230,8 @@ void starTopology_switch() {
     // Simulate periodic refresh (add this after sending data)
    std::this_thread::sleep_for(std::chrono::seconds(5)); // Wait 5 seconds before refreshing
       networkSwitch.refreshMacTable();
-     networkSwitch.displayConnectedDevices();
-
+     //networkSwitch.displayConnectedDevices();
+  
 }
 
 //  void hardwired_layer2(){
