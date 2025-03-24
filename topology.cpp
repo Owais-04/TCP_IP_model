@@ -78,29 +78,38 @@ void testcase2_layer2() {
     // Create two hubs
     Hub h1, h2;
     Switch centralSwitch;
-     centralSwitch.setDevice("A4:B1:C2:3D:E5:F6");
+    centralSwitch.setDevice("A4:B1:C2:3D:E5:F6");
+    
+    cout << "\n===== Setting up network topology =====" << endl;
+    cout << "Creating two star topologies with 5 devices each, connected via a switch" << endl;
+    
     // Connect first 5 devices to h1
+    cout << "\nConnecting devices 0-4 to Hub 1:" << endl;
     for (int i = 0; i < 5; i++) {
         h1.connectDevice(&deviceList[i]);
     }
 
     // Connect last 5 devices to h2
+    cout << "\nConnecting devices 5-9 to Hub 2:" << endl;
     for (int i = 5; i < 10; i++) {
         h2.connectDevice(&deviceList[i]);
     }
 
     // Connect hubs to the central switch
-    centralSwitch.connectHub(&h1);//two way connection
+    cout << "\nConnecting both hubs to the central switch" << endl;
+    centralSwitch.connectHub(&h1);
     centralSwitch.connectHub(&h2);
-    //h1.connectToSwitch(&centralSwitch);
-    //h2.connectToSwitch(&centralSwitch);
+    
     // Display connected devices
-    cout << "Hub 1 connected devices:" << endl;
+    cout << "\n===== Network Setup Complete =====" << endl;
+    cout << "\nHub 1 connected devices:" << endl;
     h1.displayConnectedDevices();
-    cout << "Hub 2 connected devices:" << endl;
+    cout << "\nHub 2 connected devices:" << endl;
     h2.displayConnectedDevices();
-
-    cout << "Now you have 10 devices. Select two PCs to enable communication:" << endl;
+    
+    // Get sender and receiver
+    cout << "\n===== Communication Setup =====" << endl;
+    cout << "Select two PCs to enable communication:" << endl;
     cout << "Sender device (0-9): ";
     int senderIndex;
     cin >> senderIndex;
@@ -109,11 +118,12 @@ void testcase2_layer2() {
     int receiverIndex;
     cin >> receiverIndex;
 
-    if (senderIndex < 0 || senderIndex >= 10 || receiverIndex < 0 || receiverIndex >= 10) {
+    if (senderIndex < 0 || senderIndex >= 10 || receiverIndex < 0 || receiverIndex >= 10 || senderIndex == receiverIndex) {
         cout << "Invalid device indices!" << endl;
         return;
     }
 
+    // Get message
     string message;
     cout << "Enter the message you want to send: ";
     cin.ignore();
@@ -122,35 +132,70 @@ void testcase2_layer2() {
     string senderMAC = deviceList[senderIndex].getMacAddress();
     string receiverMAC = deviceList[receiverIndex].getMacAddress();
 
+    cout << "\n===== Starting Communication =====" << endl;
     cout << "Sending message from Device " << senderIndex 
          << " (MAC: " << senderMAC << ") to Device " << receiverIndex 
          << " (MAC: " << receiverMAC << ")" << endl;
-    int incommingport=0;
-    int outgoingport=1;
+    cout << "Message: \"" << message << "\"" << endl;
+    
+    // Learn MAC addresses at the switch
+    int senderHubPort = (senderIndex < 5) ? 1 : 2;  // Port 1 for Hub1, Port 2 for Hub2
+    int receiverHubPort = (receiverIndex < 5) ? 1 : 2;
+    
+    // The switch learns the sender's MAC address when it first sees traffic
+    centralSwitch.learnMacAddress(senderMAC, senderHubPort);
+    
+    
+    
     // Determine which hub the sender and receiver belong to
-    if (senderIndex < 5) { // Sender is in Hub 1
+    if (senderIndex < 5) { 
+    
+        h1.broadcastData(senderMAC, message);
+        
         if (receiverIndex < 5) { // Receiver is also in Hub 1
-            h1.broadcastData(senderMAC, message);
+            
             h1.broadcastAck(receiverMAC);
         } else { // Receiver is in Hub 2
-            h1.broadcastData(senderMAC, message);
-            centralSwitch.forwardPacket(senderMAC,incommingport);
+            
+            
+            // Switch forwards data to Hub 2 because receiver is there
+            
+            centralSwitch.forwardPacket(receiverMAC, senderHubPort);
+            
+            
             h2.broadcastAck(receiverMAC);
+            
+            // ACK travels back
+        
+            centralSwitch.forwardPacket(senderMAC, receiverHubPort);
+            h1.broadcastAck(receiverMAC);
+        
         }
     } else { // Sender is in Hub 2
+        
+        h2.broadcastData(senderMAC, message);
+        
         if (receiverIndex >= 5) { // Receiver is also in Hub 2
-            h2.broadcastData(senderMAC, message);
+          
             h2.broadcastAck(receiverMAC);
         } else { // Receiver is in Hub 1
-            h2.broadcastData(senderMAC, message);
-            centralSwitch.forwardPacket(senderMAC, outgoingport);
+            
+            // Switch forwards data to Hub 1 because receiver is there
+            h2.broadcastAck(receiverMAC);
+            centralSwitch.forwardPacket(receiverMAC, senderHubPort);
+            
+           
             h1.broadcastAck(receiverMAC);
+            
+            // ACK travels back
+           
+            centralSwitch.forwardPacket(senderMAC, receiverHubPort);
+            
+            
         }
     }
-
-    // Report broadcast and collision domains
-    // cout << "Total broadcast domains: 1 (entire network connected via switch)" << endl;
-    // cout << "Total collision domains: 2 (one for each hub)" << endl;
+    
+ 
 }
 
 
