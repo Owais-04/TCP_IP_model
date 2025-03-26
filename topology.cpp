@@ -5,7 +5,7 @@
 #include "switch.h"
 #include <iostream>
 #include "paramhs.h"
-#include "bridge.h"
+
 #include <thread>
 #include <chrono>
 
@@ -13,12 +13,11 @@ using namespace std;
 void choose_Topology_layer2(int x){
     switch(x){
         case 1:
-       // cout<<"star using switch :"<<endl;
        starTopology_switch();
        break;
-    //    case 2://hard wired connection to show working of intermixed ckt
-    //    hardwired_layer2();
-    //    break;
+       case 2:
+       busTopology_access();
+       break;
      default:
      cout<<"invalid "<<endl;
       break;
@@ -80,8 +79,7 @@ void testcase2_layer2() {
     Switch centralSwitch;
     centralSwitch.setDevice("A4:B1:C2:3D:E5:F6");
     
-    cout << "\n===== Setting up network topology =====" << endl;
-    cout << "Creating two star topologies with 5 devices each, connected via a switch" << endl;
+   
     
     // Connect first 5 devices to h1
     cout << "\nConnecting devices 0-4 to Hub 1:" << endl;
@@ -96,19 +94,17 @@ void testcase2_layer2() {
     }
 
     // Connect hubs to the central switch
-    cout << "\nConnecting both hubs to the central switch" << endl;
+    
     centralSwitch.connectHub(&h1);
     centralSwitch.connectHub(&h2);
     
-    // Display connected devices
-    cout << "\n===== Network Setup Complete =====" << endl;
-    cout << "\nHub 1 connected devices:" << endl;
+    
     h1.displayConnectedDevices();
     cout << "\nHub 2 connected devices:" << endl;
     h2.displayConnectedDevices();
     
     // Get sender and receiver
-    cout << "\n===== Communication Setup =====" << endl;
+  
     cout << "Select two PCs to enable communication:" << endl;
     cout << "Sender device (0-9): ";
     int senderIndex;
@@ -132,7 +128,7 @@ void testcase2_layer2() {
     string senderMAC = deviceList[senderIndex].getMacAddress();
     string receiverMAC = deviceList[receiverIndex].getMacAddress();
 
-    cout << "\n===== Starting Communication =====" << endl;
+  
     cout << "Sending message from Device " << senderIndex 
          << " (MAC: " << senderMAC << ") to Device " << receiverIndex 
          << " (MAC: " << receiverMAC << ")" << endl;
@@ -161,7 +157,7 @@ void testcase2_layer2() {
             // Switch forwards data to Hub 2 because receiver is there
             
             centralSwitch.forwardPacket(receiverMAC, senderHubPort);
-            
+            h2.broadcastData(senderMAC,message);
             
             h2.broadcastAck(receiverMAC);
             
@@ -176,7 +172,7 @@ void testcase2_layer2() {
         h2.broadcastData(senderMAC, message);
         
         if (receiverIndex >= 5) { // Receiver is also in Hub 2
-          
+            
             h2.broadcastAck(receiverMAC);
         } else { // Receiver is in Hub 1
             
@@ -208,14 +204,14 @@ void testcase1_layer1(){
     initializeEndDevices();
     int device,device2;
     string message;
-    cout<<"what is the sender device :(devices start from 0-2)"<<endl;
+    cout<<"what is the sender device :"<<endl;
     cin>>device;
     cout<<"enter the message you want to send :"<<endl;
     cin>>message;
     cout<<"enter the receving device :"<<endl;
     cin>>device2;
     cout<<"device "<<deviceList[device].getMacAddress()<<" is sending message "<<message<<" to device "<<deviceList[device2].getMacAddress()<<endl;
-
+    cout<<"ack received from "<<deviceList[device2].getMacAddress()<<" to "<<deviceList[device].getMacAddress()<<endl;
  }
 void starTopology() {
     int device,device2;
@@ -224,7 +220,7 @@ void starTopology() {
     for (auto& device : deviceList) {
         hub.connectDevice(&device);
     }
-    cout<<"what is the sender device :(devices start from 0-2)"<<endl;
+    cout<<"what is the sender device :"<<endl;
     cin>>device;
     cout<<"enter the message you want to send :"<<endl;
     cin>>message;
@@ -245,14 +241,14 @@ void starTopology_switch() {
     // Connect devices and assign ports
     int port = 1;
     for (auto& dev : deviceList) {
-        if (port > Switch::MAX_PORTS) {
-            std::cout << "Max ports reached. Cannot connect more devices." << std::endl;
-            break;
-        }
+        // if (port > Switch::MAX_PORTS) {
+        //     std::cout << "Max ports reached. Cannot connect more devices." << std::endl;
+        //     break;
+        // }
         networkSwitch.learnMacAddress(dev.getMacAddress(), port++);
     }
    
-    std::cout << "What is the sending device? (1-9)"<< std::endl;
+    std::cout << "What is the sending device? "<< std::endl;
     std::cin >> device;
     std::cout << "What is the receiving device? (other than sending)" << std::endl;
     std::cin >> device2;
@@ -283,20 +279,207 @@ void busTopology() {
     for (auto& device : deviceList) {
         bus.connectDevice_bus(&device);
     }
-    cout<<"what is the sending device?(0-2)"<<endl;
+    cout<<"what is the sending device?"<<endl;
     cin>>device;
-    cout<<"enter receving device?(0-2) other than sending device"<<endl;
+    cout<<"enter receving device? other than sending device"<<endl;
     cin>>device2;
     cout<<"enter the message!"<<endl;
     cin>>message;
     bus.transmitData_bus(deviceList[device].getMacAddress(), message, deviceList[device2].getMacAddress());
+    bus.TransmitAck(deviceList[device2].getMacAddress());
     //bus.transmitData_bus(deviceList[device2].getMacAddress(),"Ack from "+deviceList[device2].getMacAddress(), deviceList[device].getMacAddress() );
     bus.displayConnectedDevices_bus();
 }
+void busTopology_access() {
+    int numDevices;
+    cout << "Enter the number of devices in the bus topology: ";
+    cin >> numDevices;
+
+    vector<int> devices(numDevices);
+    for (int i = 0; i < numDevices; i++) {
+        devices[i] = i;
+    }
+
+    Bus bus;
+    for (auto& device : deviceList) {
+        bus.connectDevice_bus(&device);
+    }
+
+    vector<string> messages(numDevices);
+    vector<int> destinations(numDevices);
+
+    // Collect messages from each device
+    for (int i = 0; i < numDevices; i++) {
+        cout << "Enter message from device " << devices[i] << ": ";
+        cin >> messages[i];
+        cout << "Enter destination device for message from device " << devices[i] << ": ";
+        cin >> destinations[i];
+    }
+
+    cout << "\nStarting token passing..." << endl;
+
+    
+    for (int i = 0; i < numDevices; i++) {
+        int sender = devices[i];
+        int receiver = destinations[i];
+
+        cout << "\nDevice " << sender << " has the token." << endl;
+        bus.transmitData_bus(deviceList[sender].getMacAddress(), messages[i], deviceList[receiver].getMacAddress());
+        bus.TransmitAck(deviceList[receiver].getMacAddress());
+
+        cout << "Token passed from Device " << sender << " to Device " << devices[(i + 1) % numDevices] << "..." << endl;
+    }
+
+   
+    bus.displayConnectedDevices_bus();
+}
+void custom_circuit_layer1(){
+    starTopology();
+}
+void custom_circuit_layer2() {
+    // Initialize end devices if not already done
+    initializeEndDevices();
+
+    // Create central switch
+    Switch centralSwitch;
+    centralSwitch.setDevice("6C:2F:9A:D3:1E");
+
+    // Hub creation and connection
+    int numHubs;
+    cout << "How many hubs do you want to connect to the switch? (1-5): ";
+    cin >> numHubs;
+
+    // Validate hub count
+    if (numHubs < 1 || numHubs > 5) {
+        cout << "Invalid number of hubs. Please choose between 1 and 5." << endl;
+        return;
+    }
+
+    // Create hubs vector
+    vector<Hub> hubs(numHubs);
+
+    // Connect hubs to switch and add devices
+    for (int i = 0; i < numHubs; i++) {
+        // Connect hub to switch
+        centralSwitch.connectHub(&hubs[i]);
+        cout << "Hub " << i + 1 << " connected to the switch." << endl;
+
+        // Determine number of devices for this hub
+        int numDevicesPerHub;
+        cout << "How many devices do you want to connect to Hub " << i + 1 << "? (0-10): ";
+        cin >> numDevicesPerHub;
+
+        // Validate device count
+        if (numDevicesPerHub < 0 || numDevicesPerHub > 10) {
+            cout << "Invalid number of devices. Skipping hub device connection." << endl;
+            continue;
+        }
+
+        // Connect devices to hub
+        for (int j = 0; j < numDevicesPerHub; j++) {
+            if (j < deviceList.size()) {
+                // Connect device to hub
+                hubs[i].connectDevice(&deviceList[j]);
+
+                // Learn MAC address in the switch
+                centralSwitch.learnMacAddress(deviceList[j].getMacAddress(), i + 1);
+
+                cout << "Device " << deviceList[j].getMacAddress()
+                     << " connected to Hub " << i + 1 << endl;
+            }
+        }
+    }
+
+    // Direct device connection to switch
+    // char connectDirectly;
+    // cout << "Do you want to connect additional devices directly to the switch? (y/n): ";
+    // cin >> connectDirectly;
+
+    // if (connectDirectly == 'y' || connectDirectly == 'Y') {
+    //     int numDirectDevices;
+    //     cout << "How many devices do you want to connect directly? (0-10): ";
+    //     cin >> numDirectDevices;
+
+    //     // Validate and connect direct devices
+    //     if (numDirectDevices > 0 && numDirectDevices <= 10) {
+    //         for (int i = 0; i < numDirectDevices; i++) {
+    //             if (i < deviceList.size()) {
+    //                 centralSwitch.connectDevice(deviceList[i].getMacAddress());
+    //                 cout << "Device " << deviceList[i].getMacAddress() << " connected directly to the switch." << endl;
+    //             }
+    //         }
+    //     }
+    // }
+
+    // Demonstration of communication
+    char demonstrateCommunication;
+    cout << "Do you want to demonstrate device communication? (y/n): ";
+    cin >> demonstrateCommunication;
+
+    if (demonstrateCommunication == 'y' || demonstrateCommunication == 'Y') {
+        int senderDevice, receiverDevice;
+        string message;
+
+        // Select sender and receiver
+        cout << "Enter sender device number: ";
+        cin >> senderDevice;
+        cout << "Enter receiver device number: ";
+        cin >> receiverDevice;
+        cout << "Enter message to send: ";
+        cin.ignore();
+        getline(cin, message);
+
+        // Validate device indices
+        if (senderDevice < 0 || senderDevice >= deviceList.size() ||
+            receiverDevice < 0 || receiverDevice >= deviceList.size() ||
+            senderDevice == receiverDevice) {
+            cout << "Invalid device selection!" << endl;
+            return;
+        }
+
+        // Get sender and receiver MAC addresses
+        string senderMAC = deviceList[senderDevice].getMacAddress();
+        string receiverMAC = deviceList[receiverDevice].getMacAddress();
+
+        // Determine which hub the sender and receiver belong to
+        Hub* senderHub = nullptr;
+        Hub* receiverHub = nullptr;
+        int senderHubPort = -1, receiverHubPort = -1;
+
+        for (int i = 0; i < numHubs; i++) {
+            if (hubs[i].isDeviceConnected(senderMAC)) {
+                senderHub = &hubs[i];
+                senderHubPort = i + 1;
+            }
+            if (hubs[i].isDeviceConnected(receiverMAC)) {
+                receiverHub = &hubs[i];
+                receiverHubPort = i + 1;
+            }
+        }
+
+        // Communication logic
+        
+            if (senderHub == receiverHub) {
+                // Same hub communication
+                senderHub->broadcastData(senderMAC, message);
+                senderHub->broadcastAck(receiverMAC);
+            } else {
+            //     // Different hubs communication via switch
+            //     senderHub->broadcastData(senderMAC, message);
+            //     centralSwitch.forwardPacket(receiverMAC, senderHubPort);
+            //     receiverHub->broadcastAck(receiverMAC);
+            //     centralSwitch.forwardPacket(senderMAC, receiverHubPort);
+            //     senderHub->broadcastAck(receiverMAC);
+             }
+         
+    
+
+    // Display switch details
+    centralSwitch.displayConnectedDevices();
+}
+}
+// Additional methods to support this simulation
 
 
-//  void ringTopology(){
-// //     Ring ring;
-// //     ring.connectDevices_ring(&device);
 
-//  }
+

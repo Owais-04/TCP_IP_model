@@ -18,7 +18,7 @@ public:
     void transmitData_bus(const string& senderMAC, const string& data,const string& receiverMAC);
 
     void displayConnectedDevices_bus() const;
-   
+    void TransmitAck(const string& senderMAC);
 };
 
 #endif

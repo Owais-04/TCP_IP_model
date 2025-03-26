@@ -48,3 +48,12 @@ void Hub::broadcastAck(const string& senderMAC) {
         cout<<" -> sent to switch with Mac "<<device->getMacAddress()<<endl;
     }
 }
+bool Hub::isDeviceConnected(const string& macAddress) {
+    // Check if the device is connected to this hub
+    for (auto& device : connectedDevices) {
+        if (device->getMacAddress() == macAddress) {
+            return true;
+        }
+    }
+    return false;
+}

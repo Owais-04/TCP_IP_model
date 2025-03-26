@@ -27,6 +27,7 @@ public:
     static const int SEQ_NUM_SIZE = 8;
    
     int calculateChecksum(const std::string& frame);
+   // bool verifyChecksum(const std::string& frame, int receivedChecksum);
     void forwardPacket(const std::string& mac_dest, int incomingPort);
     void learnMacAddress(const std::string& mac_source, int port);
     void applyAccessControl(const std::string& protocol, const std::string& senderMAC, const std::string& receiverMAC, const std::string& data);
@@ -38,6 +39,7 @@ public:
     void connectHub(Hub* hub);
     void setDevice(const std::string & mac_address);
     std:: string getMacAddress() const;
+    bool isDeviceDirectlyConnected(const string& macAddress);
     
     std:: vector<Hub*> connectedHubs;
 };

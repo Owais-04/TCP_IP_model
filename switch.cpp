@@ -11,6 +11,18 @@ int Switch::calculateChecksum(const std::string& frame) {
     }
     return checksum % 256;
 }
+// bool Switch::verifyChecksum(const std::string& frame, int receivedChecksum) {
+//     int calculatedChecksum = calculateChecksum(frame);
+//     if (calculatedChecksum == receivedChecksum) {
+//         std::cout << "Checksum verification passed for frame: " << frame << std::endl;
+//         return true;
+//     } else {
+//         std::cout << "Checksum verification failed for frame: " << frame 
+//                   << ". Expected: " << calculatedChecksum 
+//                   << ", Received: " << receivedChecksum << std::endl;
+//         return false;
+//     }
+// }
 void Switch::learnMacAddress(const std::string& mac_source, int port) {
     if (macTable.size() >= MAX_PORTS) {
         std::cout << "Error: Maximum port limit reached. Cannot add more devices." << std::endl;
@@ -42,79 +54,137 @@ void Switch::applyAccessControl(const std::string& protocol, const std::string& 
 
 void Switch::stopAndWait(const std::string& senderMAC, const std::string& receiverMAC, const std::string& data) {
     std::srand(std::time(nullptr)); // Seed for randomization
-    std::cout << "[Stop-and-Wait] Sending data from " << senderMAC << " to " << receiverMAC << "..." << std::endl;
+    std::cout << " Sending data from " << senderMAC << " to " << receiverMAC << "..." << std::endl;
 
     for (char c : data) {
         std::string frame(1, c);
         int checksum = calculateChecksum(frame);
-        std::cout << "Sending frame: " << c << " with checksum: " << checksum << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(1)); // Simulate delay
 
-        bool frameCorrupt = (std::rand() % 2 == 0);
-        if (frameCorrupt) {
-            std::cout << "Frame " << c << " corrupted! Requesting retransmission..." << std::endl;
+        bool ackReceived = false;
+        int attempts = 0;
+
+        while (!ackReceived && attempts < 3) { // Retransmit up to 3 times
+            std::cout << "Sending frame: " << c << " with checksum: " << checksum << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(1));
-            std::cout << "Resending frame: " << c << " with checksum: " << checksum << std::endl;
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+
+            bool introduceError = (std::rand() % 4 == 0);
+            int receivedChecksum = introduceError ? checksum + 1 : checksum;
+
+            // Simulate lost ACK
+            bool ackLost = (std::rand() % 5 == 0);
+
+            if (calculateChecksum(frame) != receivedChecksum) {
+                std::cout << "Error detected in frame: " << c << "! Checksum received :" <<receivedChecksum<< std::endl;
+                std::cout << "Requesting retransmission..." << std::endl;
+            } else if (ackLost) {
+                std::cout << "ACK lost! Retransmitting frame..." << std::endl;
+            } else {
+                std::cout << "ACK received for frame: " << c << std::endl;
+                ackReceived = true;
+            }
+            attempts++;
         }
-        std::cout << "ACK received for frame: " << c << std::endl;
-    }
-    std::cout << "[Stop-and-Wait] Transmission successful." << std::endl;
-}
-//im not converting frames into data cause no data is actually transmitted 
 
+        if (!ackReceived) {
+            std::cout << "Transmission failed after multiple attempts for frame: " << c << std::endl;
+            return;
+        }
+    }
+    std::cout << " Transmission successful." << std::endl;
+}
+
+
+
+//im not converting frames into data because no data is actually transmitted 
+//multiple frames sent before ack is received
 void Switch::selectiveRepeat(const std::string& senderMAC, const std::string& receiverMAC, const std::string& data) {
     std::srand(std::time(nullptr)); // Seed for randomization
-    std::cout << "[Selective Repeat] Sending frames from " << senderMAC << " to " << receiverMAC << "..." << std::endl;
-    
+    std::cout << "Sending frames from " << senderMAC << " to " << receiverMAC << "..." << std::endl;
+
     int base = 0;
     std::vector<bool> ackReceived(data.size(), false);
+
     while (base < data.size()) {
         for (int j = 0; j < WINDOW_SIZE; ++j) {
             int seqNum = (base + j) % SEQ_NUM_SIZE;
             if (base + j < data.size() && !ackReceived[base + j]) {
                 std::string frame(1, data[base + j]);
                 int checksum = calculateChecksum(frame);
+
+                bool introduceError = (std::rand() % 5 == 0);
+                int receivedChecksum = introduceError ? checksum + 1 : checksum;
+
                 std::cout << "Sending frame " << seqNum << ": " << data[base + j] << " with checksum: " << checksum << std::endl;
-            }
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        
-        for (int j = 0; j < WINDOW_SIZE; ++j) {
-            int seqNum = (base + j) % SEQ_NUM_SIZE;
-            if (base + j < data.size() && !ackReceived[base + j]) {
-                bool frameLost = (std::rand() % 4 == 0);
-                bool frameCorrupt = (std::rand() % 5 == 0);
-                if (frameLost || frameCorrupt) {
-                    std::cout << "Frame " << seqNum << " lost or corrupted! Requesting retransmission..." << std::endl;
-                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+                bool ackLost = (std::rand() % 5 == 0);
+                if (calculateChecksum(frame) != receivedChecksum) {
+                    std::cout << "Frame " << seqNum << " corrupted! Requesting retransmission..." << std::endl;
+                } else if (ackLost) {
+                    std::cout << "ACK lost for frame " << seqNum << "! Retransmitting..." << std::endl;
                 } else {
-                    std::cout << "Frame " << seqNum << " successfully received." << std::endl;
+                    std::cout << "ACK received for frame " << seqNum << std::endl;
                     ackReceived[base + j] = true;
                 }
             }
         }
-        
-        while (base < data.size() && ackReceived[base % SEQ_NUM_SIZE]) {
+
+        // forwarding base index
+        while (base < data.size() && ackReceived[base]) {
             ++base;
         }
     }
-    std::cout << "[Selective Repeat] All frames acknowledged. Transmission successful." << std::endl;
-}//this function is half done using internet
+    std::cout << " All frames acknowledged. Transmission successful." << std::endl;
+}
+
+
+//used internet for randomization 
 
 
 
 void Switch::displayConnectedDevices() {
-    std::cout << "Connected Devices and Ports:" << std::endl;
-    for (const auto& entry : macTable) {
-        std::cout << "MAC Address: " << entry.first << " -> Port: " << entry.second << std::endl;
+    cout << "Switch Connection Details:" << endl;
+    
+    
+    cout << "Switch MAC Address: " << mac_address << endl;
+    
+
+    cout << "\nConnected Hubs:" << endl;
+    if (connectedHubs.empty()) {
+        cout << "No hubs connected to the switch" << endl;
+    } else {
+        for (size_t i = 0; i < connectedHubs.size(); i++) {
+            cout << "Hub " << i+1 << " connected to Switch on port " << i+1 << endl;
+        }
     }
+    
+    
+    cout << "\nDirectly Connected End Devices:" << endl;
+    if (connectedDevices.empty()) {
+        cout << "No devices directly connected to the switch" << endl;
+    } else {
+        for (const auto& deviceMac : connectedDevices) {
+        
+            int port = -1;
+            for (const auto& entry : macTable) {
+                if (entry.first == deviceMac) {
+                    port = entry.second;
+                    break;
+                }
+            }
+            
+            cout << "Device MAC: " << deviceMac 
+                 << " (Port: " << port << ")" << endl;
+        }
+    }
+    
+  
 }
 void Switch::connectDevice(const std::string& macAddress) {
-    if (macTable.size() >= MAX_PORTS) {
-        std::cout << "Error: Maximum port limit reached. Cannot add more devices." << std::endl;
-        return;
-    }
+    // if (macTable.size() >= MAX_PORTS) {
+    //     std::cout << "Error: Maximum port limit reached. Cannot add more devices." << std::endl;
+    //     return;
+    // }
     int port = (macTable.size() % MAX_PORTS) + 1; // Assign port using modulo operation
     learnMacAddress(macAddress, port);
     std::cout << "Device with MAC " << macAddress << " connected at port " << port << std::endl;
@@ -154,7 +224,17 @@ void Switch::connectHub(Hub* hub) {
         std::cout << "Error: Maximum port limit reached. Cannot connect more hubs." << std::endl;
         return;
     }
+    int port = (connectedHubs.size() % MAX_PORTS) + 1; // Assign port using modulo operation
     connectedHubs.push_back(hub);
     hub->connectToSwitch(this); // Establish bidirectional connection
-    std::cout << "Hub connected to switch successfully." << std::endl;
+    std::cout << "Hub connected to switch on port " << port << std::endl;
+}
+bool Switch::isDeviceDirectlyConnected(const string& macAddress) {
+    // Check if the device is directly connected to the switch
+    for (const auto& device : connectedDevices) {
+        if (device == macAddress) {
+            return true;
+        }
+    }
+    return false;
 }

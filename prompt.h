@@ -12,7 +12,7 @@ class prompt
     }
     void layer2(){
         int choice;
-        cout<<"enter the topology you want to use(currently only star) :"<<endl;
+        cout<<"enter the topology you want to use(1. star 2. bus [uses token passing]) :"<<endl;
         cin>>choice;
         choose_Topology_layer2(choice);
         
@@ -31,12 +31,28 @@ class prompt
        }
        
     }
+    void custom_circuit(){
+        int number;
+       cout<<"What device you want to use \n1.hub \n2.switch"<<endl;
+       cin>>number;
+       switch(number){
+          case 1:
+             custom_circuit_layer1();
+             break;
+         case 2:
+            custom_circuit_layer2();
+            break;
+            default:
+            cout<<"invlaid"<<endl;
+       }
+
+    }
    
   
     void run(){
         initializeEndDevices();
         int x;
-        cout<<"1 for adding layer1 device \n2 for layer2 device \n3 for checking Test cases: "<<endl;
+        cout<<"1. for adding layer1 device \n2. for layer2 device \n3. for checking Test cases:\n4. custom ckt "<<endl;
         cin>>x;
         switch(x){
             case 1:
@@ -51,6 +67,12 @@ class prompt
             cout<<"test cases for layer 1 and 2 :"<<endl;
             testcases();
             break;
+            case 4:
+            cout<<"custom created circut :"<<endl;
+            custom_circuit();
+            break;
+            default:
+            cout<<"invalid "<<endl;
         }
 
     }

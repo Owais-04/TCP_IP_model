@@ -25,6 +25,7 @@ public:
     void broadcastAck(const string& senderMAC);
     
     void connectToSwitch(Switch* switchDevice);
+    bool isDeviceConnected(const string& macAddress);
 };
 
 #endif
