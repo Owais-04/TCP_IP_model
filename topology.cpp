@@ -236,7 +236,7 @@ void starTopology_switch() {
     int device, device2;
     std::string message, protocol;
     Switch networkSwitch;
-    initializeEndDevices(); // Ensure devices are initialized
+    initializeEndDevices(); 
 
     // Connect devices and assign ports
     int port = 1;

@@ -9,7 +9,7 @@ int Switch::calculateChecksum(const std::string& frame) {
     for (char c : frame) {
         checksum += c;
     }
-    return checksum % 256;
+    return checksum % 256;//so that it fits in 8 bits
 }
 // bool Switch::verifyChecksum(const std::string& frame, int receivedChecksum) {
 //     int calculatedChecksum = calculateChecksum(frame);
@@ -39,7 +39,7 @@ void Switch::forwardPacket(const std::string& mac_dest, int incomingPort) {
         std::cout << "Flooding packet to all ports except " << incomingPort << " for MAC: " << mac_dest << std::endl;
     }
 }
-
+//flow control
 void Switch::applyAccessControl(const std::string& protocol, const std::string& senderMAC, const std::string& receiverMAC, const std::string& data) {
     if (protocol == "Stop-and-Wait") {
         stopAndWait(senderMAC, receiverMAC, data);
@@ -138,7 +138,7 @@ void Switch::selectiveRepeat(const std::string& senderMAC, const std::string& re
 }
 
 
-//used internet for randomization 
+
 
 
 
