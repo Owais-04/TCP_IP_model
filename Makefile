@@ -5,7 +5,7 @@ CXXFLAGS =
 TARGET = main
 
 # Object files for modular compilation
-OBJS = main.o device.o hub.o bus.o topology.o switch.o  
+OBJS = main.o device.o hub.o bus.o topology.o switch.o router.o
 
 all: $(TARGET)
 
@@ -14,7 +14,7 @@ $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
 
 # Compile main.cpp into main.o
-main.o: main.cpp device.h hub.h bus.h topology.h switch.h  prompt.h
+main.o: main.cpp device.h hub.h bus.h topology.h switch.h router.h prompt.h
 	$(CXX) $(CXXFLAGS) -c main.cpp
 
 # Compile device.cpp into device.o
@@ -37,8 +37,9 @@ topology.o: topology.cpp topology.h
 switch.o: switch.cpp switch.h
 	$(CXX) $(CXXFLAGS) -c switch.cpp
 
-
-
+# Compile router.cpp into router.o
+router.o: router.cpp router.h
+	$(CXX) $(CXXFLAGS) -c router.cpp
 
 # Clean rule to remove generated files
 clean:
